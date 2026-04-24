@@ -37,6 +37,12 @@ You get:
 pip install codejoust
 ```
 
+> **Versions.** The current PyPI release (`codejoust 0.1.0`) ships Claude Code and aider adapters only. The Codex adapter lives on `main` and will fold into the next PyPI bump. To preview it today:
+>
+> ```bash
+> pip install "git+https://github.com/he-yufeng/CodeJoust"
+> ```
+
 You'll also need whichever agent CLIs you want to race. Install as many or as few as you like:
 
 ```bash
