@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+*.egg
+build/
+dist/
+.venv/
+.eggs/
+pip-wheel-metadata/
+
+# Hatchling editable
+_editable_impl_*.pth
+
+# Test / cache
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Run artifacts
+.codejoust/
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+*.swp
+*~

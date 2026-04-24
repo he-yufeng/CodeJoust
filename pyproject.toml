@@ -1,0 +1,75 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "codejoust"
+version = "0.1.0"
+description = "A CLI arena for AI coding agents. Throw one bug at Claude Code, Codex, aider — let them race, auto-score, and pick the winner."
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.10"
+authors = [
+    { name = "Yufeng He", email = "40085740+he-yufeng@users.noreply.github.com" },
+]
+keywords = [
+    "claude-code",
+    "codex",
+    "aider",
+    "coding-agent",
+    "ai-arena",
+    "agent-benchmark",
+    "parallel-agents",
+    "git-worktree",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development",
+    "Topic :: Software Development :: Quality Assurance",
+]
+dependencies = [
+    "click>=8.1",
+    "rich>=13.0",
+    "pydantic>=2.5",
+    "pyyaml>=6.0",
+    "httpx>=0.25",
+]
+
+[project.optional-dependencies]
+judge = [
+    "litellm>=1.40",
+]
+dev = [
+    "pytest>=7.0",
+    "pytest-asyncio>=0.23",
+    "ruff>=0.4",
+]
+
+[project.urls]
+Homepage = "https://github.com/he-yufeng/CodeJoust"
+Repository = "https://github.com/he-yufeng/CodeJoust"
+Issues = "https://github.com/he-yufeng/CodeJoust/issues"
+
+[project.scripts]
+codejoust = "codejoust.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/codejoust"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM"]
+ignore = ["E501"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
