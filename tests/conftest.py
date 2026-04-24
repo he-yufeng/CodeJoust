@@ -43,5 +43,14 @@ def fake_bin(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     )
     aider.chmod(0o755)
 
+    codex = bin_dir / "codex"
+    codex.write_text(
+        '#!/usr/bin/env bash\n'
+        'set -e\n'
+        'echo "fake codex line" >> app.py\n'
+        "printf '%s\\n' '{\"timestamp\":\"2026-04-25T10:00:00Z\",\"type\":\"event_msg\",\"payload\":{\"type\":\"token_count\",\"info\":{\"total_token_usage\":{\"input_tokens\":800,\"output_tokens\":150,\"total_tokens\":950}}}}'\n"
+    )
+    codex.chmod(0o755)
+
     monkeypatch.setenv("PATH", f"{bin_dir}:{os.environ['PATH']}")
     return bin_dir

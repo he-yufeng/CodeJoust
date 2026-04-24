@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "codejoust"
-version = "0.1.0"
+version = "0.1.1"
 description = "A CLI arena for AI coding agents. Throw one bug at Claude Code, Codex, aider — let them race, auto-score, and pick the winner."
 readme = "README.md"
 license = { text = "MIT" }

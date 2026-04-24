@@ -149,6 +149,58 @@ class ClaudeCodeAdapter(AgentAdapter):
         run.cost_usd = float(cost or 0.0)
 
 
+class CodexAdapter(AgentAdapter):
+    name = "codex"
+    default_cli = "codex"
+
+    def build_command(self, task: str, cwd: Path) -> list[str]:
+        cmd = [
+            self.resolved_cli(),
+            "exec",
+            task,
+            "--json",
+            # worktrees have `.git` as a file, not a directory — `codex exec`
+            # refuses to start unless we explicitly skip that check.
+            "--skip-git-repo-check",
+            # we own the worktree and are about to throw it away, so approval
+            # prompts and the default read-only sandbox just break the run.
+            "--dangerously-bypass-approvals-and-sandbox",
+        ]
+        if self.spec.model:
+            cmd += ["--model", self.spec.model]
+        cmd += list(self.spec.extra_args)
+        return cmd
+
+    def parse_usage(self, run: AgentRun) -> None:
+        if not run.stdout_path or not run.stdout_path.exists():
+            return
+        in_tokens = 0
+        out_tokens = 0
+        with open(run.stdout_path, encoding="utf-8", errors="replace") as f:
+            for line in f:
+                line = line.strip()
+                if not line or not line.startswith("{"):
+                    continue
+                try:
+                    msg = json.loads(line)
+                except json.JSONDecodeError:
+                    continue
+                payload = msg.get("payload") or {}
+                # Final usage arrives as a `token_count` event. Later events
+                # overwrite earlier ones, so we just take the last one we see.
+                if payload.get("type") == "token_count":
+                    info = payload.get("info") or {}
+                    totals = info.get("total_token_usage") or {}
+                    if "input_tokens" in totals:
+                        in_tokens = totals["input_tokens"]
+                    if "output_tokens" in totals:
+                        out_tokens = totals["output_tokens"]
+        run.input_tokens = in_tokens
+        run.output_tokens = out_tokens
+        # Codex's exec output doesn't include a dollar cost; leave it at 0
+        # and let tests / diff drive scoring.
+
+
 class AiderAdapter(AgentAdapter):
     name = "aider"
     default_cli = "aider"
@@ -221,6 +273,7 @@ REGISTRY: dict[str, type[AgentAdapter]] = {
     "claude-code": ClaudeCodeAdapter,
     "claude": ClaudeCodeAdapter,
     "aider": AiderAdapter,
+    "codex": CodexAdapter,
 }
 
 

@@ -22,7 +22,7 @@ CodeJoust takes that hour down to one command:
 
 ```bash
 codejoust run "fix the off-by-one in Scheduler.next_fire" \
-  --agents claude-code,aider --test "pytest tests/test_scheduler.py"
+  --agents claude-code,aider,codex --test "pytest tests/test_scheduler.py"
 ```
 
 You get:
@@ -45,6 +45,9 @@ npm install -g @anthropic-ai/claude-code
 
 # aider
 pip install aider-chat
+
+# OpenAI Codex CLI
+npm install -g @openai/codex
 ```
 
 Set the usual API keys in your environment (`ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, etc.) — CodeJoust just shells out to each CLI, so whatever auth setup you already use keeps working.
@@ -104,11 +107,11 @@ LLM-as-judge scoring (subjective code quality) is planned for v0.2 behind `--jud
 codejoust agents
 #   claude-code    cli: claude
 #   aider          cli: aider
+#   codex          cli: codex
 ```
 
-MVP ships with Claude Code and aider because their CLIs have the most stable headless modes and per-run usage reporting. The following are on the Phase 2 roadmap (in order):
+v0.1.1 ships with Claude Code, aider, and OpenAI Codex CLI. The following are still on the roadmap:
 
-- OpenAI Codex CLI (`codex exec`)
 - Gemini CLI (`gemini -p`)
 - Cursor CLI (`cursor-agent`) — flagged experimental until the CLI stabilises
 - OpenHands (`openhands --headless`)
@@ -166,8 +169,9 @@ Start with `--timeout 120` for small tasks. Each agent is independently rate-lim
 
 ## Roadmap
 
-- **v0.1** (now): Claude Code + aider, objective scoring, HTML report.
-- **v0.2**: Codex CLI + Gemini CLI adapters, `--judge` for LLM-as-judge scoring on tied runs, YAML config for reusable agent profiles.
+- **v0.1.0**: Claude Code + aider, objective scoring, HTML report.
+- **v0.1.1** (now): OpenAI Codex CLI adapter — three-way races work out of the box.
+- **v0.2**: Gemini CLI adapter, `--judge` for LLM-as-judge scoring on tied runs, YAML config for reusable agent profiles.
 - **v0.3**: Cursor CLI + OpenHands adapters, batch mode (run a list of issues, aggregate winners), Markdown export for PR descriptions.
 - **later**: server mode for team/CI use, public arena leaderboard.
 
