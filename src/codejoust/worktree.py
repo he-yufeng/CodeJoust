@@ -35,6 +35,32 @@ def head_commit(repo_root: Path) -> str:
     return _git(["rev-parse", "HEAD"], repo_root).strip()
 
 
+_JUNK_SEGMENTS = (
+    "__pycache__/",
+    ".pytest_cache/",
+    ".ruff_cache/",
+    ".mypy_cache/",
+    "node_modules/",
+    ".venv/",
+    "venv/",
+    "dist/",
+    "build/",
+    ".codejoust/",
+)
+_JUNK_SUFFIXES = (".pyc", ".pyo", ".egg-info")
+
+
+def _is_junk(path: str) -> bool:
+    norm = path.lstrip("./")
+    if any(seg in norm + "/" for seg in _JUNK_SEGMENTS):
+        return True
+    if any(norm.endswith(suf) for suf in _JUNK_SUFFIXES):
+        return True
+    if norm.endswith(".DS_Store"):
+        return True
+    return False
+
+
 def add_worktree(repo_root: Path, path: Path, branch: str, base_commit: str) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     _git(["worktree", "add", "-b", branch, str(path), base_commit], repo_root)
@@ -56,17 +82,28 @@ def remove_worktree(repo_root: Path, path: Path, branch: str | None = None) -> N
 
 def diff_against(repo_root: Path, worktree: Path, base_commit: str) -> tuple[str, int, int, int]:
     """Returns (unified_diff, files_changed, lines_added, lines_removed) for the worktree vs base."""
-    # Include untracked files so newly-created files show up in the diff.
-    untracked = _git(
+    # Include untracked files so newly-created files show up in the diff,
+    # but filter out caches/build artefacts that tests and tooling drop in
+    # — otherwise pytest's __pycache__ ends up in every agent's patch.
+    raw = _git(
         ["-C", str(worktree), "ls-files", "--others", "--exclude-standard"],
         repo_root,
     ).strip().splitlines()
+    untracked = [p for p in raw if p and not _is_junk(p)]
     if untracked:
         _git(["-C", str(worktree), "add", "--intent-to-add", "--", *untracked], repo_root)
 
-    diff = _git(["-C", str(worktree), "diff", base_commit], repo_root)
+    # Pathspec excludes keep generated files out of `git diff` even if they
+    # were already tracked upstream.
+    pathspec_excludes = [f":(exclude){seg.rstrip('/')}" for seg in _JUNK_SEGMENTS]
+    pathspec_excludes += [f":(exclude)*{suf}" for suf in _JUNK_SUFFIXES]
+
+    diff = _git(
+        ["-C", str(worktree), "diff", base_commit, "--", ".", *pathspec_excludes],
+        repo_root,
+    )
     stat_line = _git(
-        ["-C", str(worktree), "diff", "--shortstat", base_commit],
+        ["-C", str(worktree), "diff", "--shortstat", base_commit, "--", ".", *pathspec_excludes],
         repo_root,
     ).strip()
 

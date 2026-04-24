@@ -51,9 +51,17 @@ async def _run_agent(
 
 def _detect_test_command(repo: Path) -> str | None:
     # Light heuristic. Users can always override with --test.
-    if (repo / "pyproject.toml").exists() or (repo / "pytest.ini").exists():
-        if (repo / "tests").exists() or list(repo.glob("test_*.py")):
-            return "pytest -q"
+    has_pytest_cfg = any(
+        (repo / f).exists() for f in ("pyproject.toml", "pytest.ini", "setup.cfg", "tox.ini")
+    )
+    has_test_files = (
+        (repo / "tests").exists()
+        or (repo / "test").exists()
+        or any(repo.glob("test_*.py"))
+        or any(repo.glob("*_test.py"))
+    )
+    if has_pytest_cfg or has_test_files:
+        return "pytest -q"
     if (repo / "package.json").exists():
         try:
             import json
