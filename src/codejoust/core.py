@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
 
 from pydantic import BaseModel, Field
 
@@ -12,7 +11,7 @@ class AgentSpec(BaseModel):
 
     name: str
     cli: str
-    model: Optional[str] = None
+    model: str | None = None
     extra_args: list[str] = Field(default_factory=list)
     env: dict[str, str] = Field(default_factory=dict)
 
@@ -22,11 +21,11 @@ class AgentRun(BaseModel):
 
     agent: str
     status: str = "pending"  # pending | running | success | timeout | error
-    worktree: Optional[Path] = None
-    branch: Optional[str] = None
+    worktree: Path | None = None
+    branch: str | None = None
 
-    started_at: Optional[datetime] = None
-    finished_at: Optional[datetime] = None
+    started_at: datetime | None = None
+    finished_at: datetime | None = None
 
     diff: str = ""
     files_changed: int = 0
@@ -37,23 +36,23 @@ class AgentRun(BaseModel):
     output_tokens: int = 0
     cost_usd: float = 0.0
 
-    tests_passed: Optional[int] = None
-    tests_total: Optional[int] = None
-    test_command: Optional[str] = None
+    tests_passed: int | None = None
+    tests_total: int | None = None
+    test_command: str | None = None
     test_output_tail: str = ""
 
-    error: Optional[str] = None
-    stdout_path: Optional[Path] = None
-    stderr_path: Optional[Path] = None
+    error: str | None = None
+    stdout_path: Path | None = None
+    stderr_path: Path | None = None
 
     @property
-    def duration_seconds(self) -> Optional[float]:
+    def duration_seconds(self) -> float | None:
         if self.started_at and self.finished_at:
             return (self.finished_at - self.started_at).total_seconds()
         return None
 
     @property
-    def test_ratio(self) -> Optional[float]:
+    def test_ratio(self) -> float | None:
         if self.tests_total and self.tests_total > 0:
             return (self.tests_passed or 0) / self.tests_total
         return None
@@ -68,12 +67,12 @@ class ArenaSession(BaseModel):
     base_branch: str
     started_at: datetime = Field(default_factory=datetime.now)
     runs: list[AgentRun] = Field(default_factory=list)
-    report_dir: Optional[Path] = None
+    report_dir: Path | None = None
 
     def add_run(self, run: AgentRun) -> None:
         self.runs.append(run)
 
-    def winner(self) -> Optional[AgentRun]:
+    def winner(self) -> AgentRun | None:
         successful = [r for r in self.runs if r.status == "success"]
         if not successful:
             return None

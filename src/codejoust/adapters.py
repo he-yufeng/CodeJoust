@@ -7,7 +7,6 @@ import shutil
 from abc import ABC, abstractmethod
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
 
 from codejoust.core import AgentRun, AgentSpec
 
@@ -225,8 +224,8 @@ class AiderAdapter(AgentAdapter):
         # We scrape the last occurrence — intermediate lines show running totals.
         if not run.stdout_path or not run.stdout_path.exists():
             return
-        last_tokens_line: Optional[str] = None
-        last_cost_line: Optional[str] = None
+        last_tokens_line: str | None = None
+        last_cost_line: str | None = None
         with open(run.stdout_path, encoding="utf-8", errors="replace") as f:
             for line in f:
                 if line.lstrip().startswith("Tokens:"):

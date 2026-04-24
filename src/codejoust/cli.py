@@ -13,7 +13,6 @@ from codejoust.core import AgentSpec
 from codejoust.report import render_terminal, write_html_report, write_session_json
 from codejoust.runner import RunOptions, run_arena
 
-
 console = Console()
 
 
@@ -30,7 +29,7 @@ def main(ctx: click.Context) -> None:
 def list_agents_cmd() -> None:
     """List known agents you can pass to --agents."""
     seen = set()
-    for key, cls in REGISTRY.items():
+    for _key, cls in REGISTRY.items():
         if cls in seen:
             continue
         seen.add(cls)

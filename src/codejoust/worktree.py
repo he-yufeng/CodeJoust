@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 import shutil
 import subprocess
 from pathlib import Path
@@ -56,9 +57,7 @@ def _is_junk(path: str) -> bool:
         return True
     if any(norm.endswith(suf) for suf in _JUNK_SUFFIXES):
         return True
-    if norm.endswith(".DS_Store"):
-        return True
-    return False
+    return norm.endswith(".DS_Store")
 
 
 def add_worktree(repo_root: Path, path: Path, branch: str, base_commit: str) -> None:
@@ -74,10 +73,8 @@ def remove_worktree(repo_root: Path, path: Path, branch: str | None = None) -> N
         if path.exists():
             shutil.rmtree(path, ignore_errors=True)
     if branch:
-        try:
+        with contextlib.suppress(GitError):
             _git(["branch", "-D", branch], repo_root)
-        except GitError:
-            pass
 
 
 def diff_against(repo_root: Path, worktree: Path, base_commit: str) -> tuple[str, int, int, int]:

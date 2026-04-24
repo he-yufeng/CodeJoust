@@ -17,7 +17,6 @@ from codejoust.worktree import (
     remove_worktree,
 )
 
-
 _SAFE = re.compile(r"[^a-z0-9]+")
 
 
@@ -175,7 +174,7 @@ async def run_arena(
             ]
         )
 
-        for adapter, run, wt, _ in adapters:
+        for _adapter, run, wt, _ in adapters:
             if run.status != "success":
                 continue
             try:
