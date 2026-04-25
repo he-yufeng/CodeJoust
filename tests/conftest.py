@@ -52,5 +52,16 @@ def fake_bin(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     )
     codex.chmod(0o755)
 
+    gemini = bin_dir / "gemini"
+    gemini.write_text(
+        '#!/usr/bin/env bash\n'
+        'set -e\n'
+        'echo "fake gemini line" >> app.py\n'
+        "printf '%s\\n' '{\"type\":\"init\",\"session_id\":\"abc\"}'\n"
+        "printf '%s\\n' '{\"type\":\"message\",\"role\":\"assistant\",\"content\":\"done\"}'\n"
+        "printf '%s\\n' '{\"type\":\"result\",\"status\":\"success\",\"stats\":{\"input_tokens\":640,\"output_tokens\":120,\"total_tokens\":760,\"duration_ms\":1100}}'\n"
+    )
+    gemini.chmod(0o755)
+
     monkeypatch.setenv("PATH", f"{bin_dir}:{os.environ['PATH']}")
     return bin_dir

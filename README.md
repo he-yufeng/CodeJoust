@@ -37,7 +37,7 @@ You get:
 pip install codejoust
 ```
 
-> **Versions.** The current PyPI release (`codejoust 0.1.0`) ships Claude Code and aider adapters only. The Codex adapter lives on `main` and will fold into the next PyPI bump. To preview it today:
+> **Versions.** The current PyPI release (`codejoust 0.1.0`) ships Claude Code and aider adapters only. The Codex and Gemini adapters live on `main` and fold into the next PyPI bump. To preview them today:
 >
 > ```bash
 > pip install "git+https://github.com/he-yufeng/CodeJoust"
@@ -54,6 +54,9 @@ pip install aider-chat
 
 # OpenAI Codex CLI
 npm install -g @openai/codex
+
+# Google Gemini CLI
+brew install gemini-cli  # or: npm install -g @google/gemini-cli
 ```
 
 Set the usual API keys in your environment (`ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, etc.) — CodeJoust just shells out to each CLI, so whatever auth setup you already use keeps working.
@@ -114,11 +117,11 @@ codejoust agents
 #   claude-code    cli: claude
 #   aider          cli: aider
 #   codex          cli: codex
+#   gemini         cli: gemini
 ```
 
-v0.1.1 ships with Claude Code, aider, and OpenAI Codex CLI. The following are still on the roadmap:
+v0.2 ships with Claude Code, aider, OpenAI Codex CLI, and Google Gemini CLI. Still on the roadmap:
 
-- Gemini CLI (`gemini -p`)
 - Cursor CLI (`cursor-agent`) — flagged experimental until the CLI stabilises
 - OpenHands (`openhands --headless`)
 
@@ -176,9 +179,9 @@ Start with `--timeout 120` for small tasks. Each agent is independently rate-lim
 ## Roadmap
 
 - **v0.1.0**: Claude Code + aider, objective scoring, HTML report.
-- **v0.1.1** (now): OpenAI Codex CLI adapter — three-way races work out of the box.
-- **v0.2**: Gemini CLI adapter, `--judge` for LLM-as-judge scoring on tied runs, YAML config for reusable agent profiles.
-- **v0.3**: Cursor CLI + OpenHands adapters, batch mode (run a list of issues, aggregate winners), Markdown export for PR descriptions.
+- **v0.1.1**: OpenAI Codex CLI adapter — three-way races out of the box.
+- **v0.2.0** (now): Google Gemini CLI adapter; four agents on the same task.
+- **v0.3**: `--judge` for LLM-as-judge tie-breaking, YAML config for reusable agent profiles, Cursor + OpenHands adapters, batch mode, Markdown PR export.
 - **later**: server mode for team/CI use, public arena leaderboard.
 
 Kill criteria: if `claude-squad` or `parallel-code` ship built-in auto-scoring, CodeJoust repositions as the lightweight standalone scorer and deprecates its orchestration layer.

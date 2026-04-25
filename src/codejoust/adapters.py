@@ -200,6 +200,55 @@ class CodexAdapter(AgentAdapter):
         # and let tests / diff drive scoring.
 
 
+class GeminiAdapter(AgentAdapter):
+    name = "gemini"
+    default_cli = "gemini"
+
+    def build_command(self, task: str, cwd: Path) -> list[str]:
+        cmd = [
+            self.resolved_cli(),
+            "-p",
+            task,
+            # YOLO auto-approves every tool call. Without it gemini blocks
+            # waiting for confirmation and the run hangs to timeout.
+            "-y",
+            "-o",
+            "stream-json",
+        ]
+        if self.spec.model:
+            cmd += ["-m", self.spec.model]
+        cmd += list(self.spec.extra_args)
+        return cmd
+
+    def parse_usage(self, run: AgentRun) -> None:
+        if not run.stdout_path or not run.stdout_path.exists():
+            return
+        in_tokens = 0
+        out_tokens = 0
+        with open(run.stdout_path, encoding="utf-8", errors="replace") as f:
+            for line in f:
+                line = line.strip()
+                if not line or not line.startswith("{"):
+                    continue
+                try:
+                    msg = json.loads(line)
+                except json.JSONDecodeError:
+                    continue
+                # The final `result` event carries `stats.{input_tokens,
+                # output_tokens, total_tokens}`. Later events overwrite
+                # earlier ones — we want the last set seen.
+                if msg.get("type") == "result":
+                    stats = msg.get("stats") or {}
+                    if "input_tokens" in stats:
+                        in_tokens = stats["input_tokens"]
+                    if "output_tokens" in stats:
+                        out_tokens = stats["output_tokens"]
+        run.input_tokens = in_tokens
+        run.output_tokens = out_tokens
+        # Gemini stream-json doesn't surface dollar cost; leave 0 and let
+        # tests / diff drive scoring (same handling as codex).
+
+
 class AiderAdapter(AgentAdapter):
     name = "aider"
     default_cli = "aider"
@@ -273,6 +322,7 @@ REGISTRY: dict[str, type[AgentAdapter]] = {
     "claude": ClaudeCodeAdapter,
     "aider": AiderAdapter,
     "codex": CodexAdapter,
+    "gemini": GeminiAdapter,
 }
 
 

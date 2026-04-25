@@ -55,6 +55,24 @@ def test_codex_adapter_parses_token_count(tmp_repo: Path, fake_bin: Path, tmp_pa
     assert codex.cost_usd == 0.0  # codex exec output has no $ field
 
 
+def test_gemini_adapter_parses_result_stats(tmp_repo: Path, fake_bin: Path, tmp_path: Path) -> None:
+    session = asyncio.run(
+        run_arena(
+            task="comment",
+            repo_root=tmp_repo,
+            specs=[AgentSpec(name="gemini", cli="")],
+            opts=RunOptions(timeout_s=30),
+            log_dir=tmp_path / "logs",
+        )
+    )
+    gemini = session.runs[0]
+    assert gemini.status == "success", gemini.error
+    assert gemini.lines_added >= 1
+    assert gemini.input_tokens == 640
+    assert gemini.output_tokens == 120
+    assert gemini.cost_usd == 0.0  # gemini stream-json has no $ field either
+
+
 def test_winner_prefers_test_ratio_then_cost(tmp_repo: Path, fake_bin: Path, tmp_path: Path) -> None:
     session = asyncio.run(
         run_arena(
