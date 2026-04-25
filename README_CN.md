@@ -39,12 +39,6 @@ codejoust run "fix the off-by-one in Scheduler.next_fire" \
 pip install codejoust
 ```
 
-> **关于版本**。当前 PyPI 版本（`codejoust 0.1.0`）只含 Claude Code 和 aider。Codex 和 Gemini adapter 已在 `main`，下一次发 PyPI 一起带上。想立刻尝鲜：
->
-> ```bash
-> pip install "git+https://github.com/he-yufeng/CodeJoust"
-> ```
-
 还需要装你想让它们比赛的 agent CLI。想拉哪几个就装哪几个：
 
 ```bash
