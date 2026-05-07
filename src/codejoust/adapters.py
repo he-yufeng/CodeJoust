@@ -23,16 +23,22 @@ class AgentAdapter(ABC):
 
     def __init__(self, spec: AgentSpec):
         self.spec = spec
+        self._cli_path: str | None = None
 
     def resolved_cli(self) -> str:
         return self.spec.cli or self.default_cli
 
+    def executable(self) -> str:
+        return self._cli_path or self.resolved_cli()
+
     def check(self) -> None:
         cli = self.resolved_cli()
-        if shutil.which(cli) is None:
+        found = shutil.which(cli, path=self.build_env().get("PATH"))
+        if found is None:
             raise AgentNotAvailable(
                 f"{self.name}: '{cli}' not found on PATH. install it or pass --cli /path/to/{cli}"
             )
+        self._cli_path = found
 
     @abstractmethod
     def build_command(self, task: str, cwd: Path) -> list[str]: ...
@@ -85,7 +91,7 @@ class AgentAdapter(ABC):
 
             self.parse_usage(run)
             run.status = "success"
-        except FileNotFoundError as e:
+        except OSError as e:
             run.status = "error"
             run.error = str(e)
         finally:
@@ -106,7 +112,7 @@ class ClaudeCodeAdapter(AgentAdapter):
 
     def build_command(self, task: str, cwd: Path) -> list[str]:
         cmd = [
-            self.resolved_cli(),
+            self.executable(),
             "-p",
             task,
             "--output-format",
@@ -154,7 +160,7 @@ class CodexAdapter(AgentAdapter):
 
     def build_command(self, task: str, cwd: Path) -> list[str]:
         cmd = [
-            self.resolved_cli(),
+            self.executable(),
             "exec",
             task,
             "--json",
@@ -206,7 +212,7 @@ class GeminiAdapter(AgentAdapter):
 
     def build_command(self, task: str, cwd: Path) -> list[str]:
         cmd = [
-            self.resolved_cli(),
+            self.executable(),
             "-p",
             task,
             # YOLO auto-approves every tool call. Without it gemini blocks
@@ -255,7 +261,7 @@ class AiderAdapter(AgentAdapter):
 
     def build_command(self, task: str, cwd: Path) -> list[str]:
         cmd = [
-            self.resolved_cli(),
+            self.executable(),
             "--message",
             task,
             "--yes-always",
