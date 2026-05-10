@@ -114,6 +114,12 @@ codejoust agents
 #   aider          cli: aider
 #   codex          cli: codex
 #   gemini         cli: gemini
+
+codejoust doctor
+# 检查哪些 agent CLI 已经在 PATH 上可用
+
+codejoust doctor --agents claude-code,codex --strict
+# 选中的 CLI 缺失时直接返回非零退出码
 ```
 
 v0.2 支持 Claude Code、aider、OpenAI Codex CLI、Google Gemini CLI。以下还在路线图上：
@@ -136,6 +142,12 @@ codejoust run TASK [OPTIONS]
       --keep-worktrees   运行结束后保留 worktree，方便手动检查
       --html / --no-html 是否写 report.html。默认：开
       --open             跑完后自动在浏览器打开报告
+
+codejoust doctor [OPTIONS]
+
+      --agents TEXT      逗号分隔要检查的 agent。默认：全部 adapter
+      --json             输出机器可读 JSON
+      --strict           选中的 CLI 有缺失时返回非零退出码
 ```
 
 ## 对比同类工具

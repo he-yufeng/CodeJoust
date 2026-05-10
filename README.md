@@ -112,6 +112,12 @@ codejoust agents
 #   aider          cli: aider
 #   codex          cli: codex
 #   gemini         cli: gemini
+
+codejoust doctor
+# checks which agent CLIs are installed on PATH
+
+codejoust doctor --agents claude-code,codex --strict
+# fail fast if one of the selected CLIs is missing
 ```
 
 v0.2 ships with Claude Code, aider, OpenAI Codex CLI, and Google Gemini CLI. Still on the roadmap:
@@ -134,6 +140,12 @@ codejoust run TASK [OPTIONS]
       --keep-worktrees   don't clean up worktrees afterwards
       --html / --no-html write report.html. default: on
       --open             open the report in your browser when done
+
+codejoust doctor [OPTIONS]
+
+      --agents TEXT      comma-separated agents to check. default: all adapters
+      --json             print machine-readable JSON
+      --strict           exit non-zero if any selected CLI is missing
 ```
 
 ## vs. other tools

@@ -1,15 +1,18 @@
 from __future__ import annotations
 
 import asyncio
+import json
 import sys
 from pathlib import Path
 
 import click
 from rich.console import Console
+from rich.table import Table
 
 from codejoust import __version__
 from codejoust.adapters import REGISTRY
 from codejoust.core import AgentSpec
+from codejoust.doctor import check_agents, known_agent_names
 from codejoust.report import render_terminal, write_html_report, write_session_json
 from codejoust.runner import RunOptions, run_arena
 
@@ -34,6 +37,46 @@ def list_agents_cmd() -> None:
             continue
         seen.add(cls)
         console.print(f"  [cyan]{cls.name:<14}[/cyan] cli: {cls.default_cli}")
+
+
+@main.command("doctor")
+@click.option(
+    "--agents",
+    "agents_text",
+    default=None,
+    help="Comma-separated agents to check. Defaults to every known adapter.",
+)
+@click.option("--json", "json_output", is_flag=True, help="Print machine-readable JSON.")
+@click.option(
+    "--strict",
+    is_flag=True,
+    help="Exit non-zero if any selected agent CLI is missing.",
+)
+def doctor_cmd(agents_text: str | None, json_output: bool, strict: bool) -> None:
+    """Check whether selected agent CLIs are installed on PATH."""
+    names = _parse_agent_names(agents_text) if agents_text else known_agent_names()
+
+    try:
+        checks = check_agents(names)
+    except ValueError as exc:
+        raise click.UsageError(str(exc)) from exc
+
+    if json_output:
+        click.echo(json.dumps([c.to_dict() for c in checks], indent=2))
+    else:
+        table = Table(title="CodeJoust doctor")
+        table.add_column("agent", style="cyan")
+        table.add_column("cli")
+        table.add_column("status")
+        table.add_column("path")
+        table.add_column("note")
+        for check in checks:
+            status = "[green]ok[/green]" if check.available else "[red]missing[/red]"
+            table.add_row(check.name, check.cli, status, check.path or "", check.note)
+        console.print(table)
+
+    if strict and any(not c.available for c in checks):
+        sys.exit(1)
 
 
 @main.command("run")
@@ -147,4 +190,12 @@ def run_cmd(
             console.print(f"\n[dim]report:[/dim] {html_path}")
             if open_in_browser:
                 import webbrowser
+
                 webbrowser.open(html_path.as_uri())
+
+
+def _parse_agent_names(agents_text: str) -> list[str]:
+    names = [a.strip() for a in agents_text.split(",") if a.strip()]
+    if not names:
+        raise click.UsageError("--agents resolved to an empty list")
+    return names
