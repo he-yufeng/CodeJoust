@@ -65,7 +65,7 @@ def _detect_test_command(repo: Path) -> str | None:
         try:
             import json
 
-            pkg = json.loads((repo / "package.json").read_text())
+            pkg = json.loads((repo / "package.json").read_text(encoding="utf-8"))
             if "test" in (pkg.get("scripts") or {}):
                 return "npm test --silent"
         except Exception:
@@ -196,6 +196,8 @@ async def run_arena(
                     run.tests_total = total
                     run.test_output_tail = tail
                 except subprocess.TimeoutExpired:
+                    run.tests_passed = 0
+                    run.tests_total = 1
                     run.test_output_tail = "tests timed out"
 
     finally:

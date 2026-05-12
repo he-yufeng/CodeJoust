@@ -1,4 +1,5 @@
 import asyncio
+import subprocess
 from pathlib import Path
 
 from codejoust.core import AgentSpec
@@ -90,3 +91,28 @@ def test_winner_prefers_test_ratio_then_cost(tmp_repo: Path, fake_bin: Path, tmp
     winner = session.winner()
     assert winner is not None
     assert winner.agent == "aider"
+
+
+def test_test_timeout_is_scored_as_failure(
+    tmp_repo: Path, fake_bin: Path, tmp_path: Path, monkeypatch
+) -> None:
+    def timeout(*args, **kwargs):
+        raise subprocess.TimeoutExpired(cmd="pytest -q", timeout=300)
+
+    monkeypatch.setattr("codejoust.runner._run_tests", timeout)
+
+    session = asyncio.run(
+        run_arena(
+            task="comment",
+            repo_root=tmp_repo,
+            specs=[AgentSpec(name="codex", cli="")],
+            opts=RunOptions(timeout_s=30, test_command="pytest -q"),
+            log_dir=tmp_path / "logs",
+        )
+    )
+
+    run = session.runs[0]
+    assert run.status == "success"
+    assert run.tests_passed == 0
+    assert run.tests_total == 1
+    assert run.test_output_tail == "tests timed out"

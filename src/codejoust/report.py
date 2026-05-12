@@ -71,7 +71,7 @@ def render_terminal(session: ArenaSession, console: Console | None = None) -> No
         if run.status != "success":
             continue
         patch_path = session.report_dir / f"{run.agent}.patch"
-        patch_path.write_text(run.diff or "")
+        patch_path.write_text(run.diff or "", encoding="utf-8")
 
 
 def write_html_report(session: ArenaSession, out_path: Path) -> None:
@@ -113,12 +113,12 @@ def write_html_report(session: ArenaSession, out_path: Path) -> None:
   {''.join(diff_blocks)}
 </section>
 """
-    out_path.write_text(_HTML_SHELL.format(title="CodeJoust Arena", body=body))
+    out_path.write_text(_HTML_SHELL.format(title="CodeJoust Arena", body=body), encoding="utf-8")
 
 
 def write_session_json(session: ArenaSession, out_path: Path) -> None:
     data = json.loads(session.model_dump_json())
-    out_path.write_text(json.dumps(data, indent=2, default=str))
+    out_path.write_text(json.dumps(data, indent=2, default=str, ensure_ascii=False), encoding="utf-8")
 
 
 def _row_html(idx: int, run, is_winner: bool) -> str:

@@ -17,6 +17,7 @@ _editable_impl_*.pth
 .pytest_cache/
 .ruff_cache/
 .mypy_cache/
+.tmp/
 .coverage
 htmlcov/
 

@@ -13,7 +13,7 @@ def tmp_repo(tmp_path: Path) -> Path:
     subprocess.run(["git", "init", "-q", "-b", "main"], cwd=repo, check=True)
     subprocess.run(["git", "config", "user.email", "t@t.t"], cwd=repo, check=True)
     subprocess.run(["git", "config", "user.name", "t"], cwd=repo, check=True)
-    (repo / "app.py").write_text("print('hi')\n")
+    (repo / "app.py").write_text("print('hi')\n", encoding="utf-8")
     subprocess.run(["git", "add", "."], cwd=repo, check=True)
     subprocess.run(["git", "commit", "-q", "-m", "init"], cwd=repo, check=True)
     return repo
@@ -86,5 +86,5 @@ def _write_shim(bin_dir: Path, name: str, source: str) -> None:
         return
 
     shim = bin_dir / name
-    shim.write_text(f'#!/usr/bin/env sh\nexec "{sys.executable}" "{script}" "$@"\n')
+    shim.write_text(f'#!/usr/bin/env sh\nexec "{sys.executable}" "{script}" "$@"\n', encoding="utf-8")
     shim.chmod(0o755)
