@@ -11,6 +11,7 @@ from rich.table import Table
 
 from codejoust import __version__
 from codejoust.adapters import REGISTRY
+from codejoust.config import load_project_config
 from codejoust.core import AgentSpec
 from codejoust.doctor import check_agents, known_agent_names
 from codejoust.report import render_terminal, write_html_report, write_session_json
@@ -84,9 +85,8 @@ def doctor_cmd(agents_text: str | None, json_output: bool, strict: bool) -> None
 @click.option(
     "--agents",
     "-a",
-    default="claude-code,aider",
-    show_default=True,
-    help="Comma-separated list of agents. See `codejoust agents`.",
+    default=None,
+    help="Comma-separated list of agents. Defaults to codejoust.yaml or claude-code,aider.",
 )
 @click.option(
     "--repo",
@@ -99,8 +99,7 @@ def doctor_cmd(agents_text: str | None, json_output: bool, strict: bool) -> None
 @click.option(
     "--timeout",
     type=int,
-    default=600,
-    show_default=True,
+    default=None,
     help="Per-agent timeout in seconds.",
 )
 @click.option(
@@ -115,6 +114,13 @@ def doctor_cmd(agents_text: str | None, json_output: bool, strict: bool) -> None
     help="Optional model override passed to every agent (e.g. claude-sonnet-4-6).",
 )
 @click.option(
+    "--config",
+    "config_path",
+    type=click.Path(exists=False, dir_okay=False, path_type=Path),
+    default=None,
+    help="Project config file. Defaults to codejoust.yaml/.codejoust.yaml if present.",
+)
+@click.option(
     "--keep-worktrees",
     is_flag=True,
     help="Leave worktrees on disk after the run for manual inspection.",
@@ -122,7 +128,7 @@ def doctor_cmd(agents_text: str | None, json_output: bool, strict: bool) -> None
 @click.option(
     "--html/--no-html",
     "want_html",
-    default=True,
+    default=None,
     help="Write report.html next to the run artifacts.",
 )
 @click.option(
@@ -138,8 +144,9 @@ def run_cmd(
     timeout: int,
     test_command: str | None,
     model: str | None,
+    config_path: Path | None,
     keep_worktrees: bool,
-    want_html: bool,
+    want_html: bool | None,
     open_in_browser: bool,
 ) -> None:
     """Run TASK through every selected agent in isolated git worktrees, then rank them."""
@@ -147,23 +154,47 @@ def run_cmd(
     if not task_str:
         raise click.UsageError("task description is empty")
 
-    agent_names = [a.strip() for a in agents.split(",") if a.strip()]
-    if not agent_names:
-        raise click.UsageError("--agents resolved to an empty list")
+    try:
+        cfg = load_project_config(repo, config_path)
+    except (OSError, ValueError) as exc:
+        raise click.UsageError(str(exc)) from exc
 
-    specs = [AgentSpec(name=n, cli="", model=model) for n in agent_names]
+    if agents:
+        agent_names = [a.strip() for a in agents.split(",") if a.strip()]
+        if not agent_names:
+            raise click.UsageError("--agents resolved to an empty list")
+        specs = [AgentSpec(name=n, cli="", model=model) for n in agent_names]
+    else:
+        specs = cfg.agents or [
+            AgentSpec(name="claude-code", cli=""),
+            AgentSpec(name="aider", cli=""),
+        ]
+        if model:
+            specs = [_with_model(spec, model) for spec in specs]
+        elif cfg.model:
+            specs = [_with_model(spec, spec.model or cfg.model) for spec in specs]
+
+    timeout_s = timeout if timeout is not None else (cfg.timeout_s or 600)
+    test_cmd = test_command if test_command is not None else cfg.test_command
+    keep = keep_worktrees or bool(cfg.keep_worktrees)
+    html = cfg.html if want_html is None else want_html
+    if html is None:
+        html = True
 
     console.rule(f"[bold]CodeJoust[/bold] — {len(specs)} agents")
     console.print(f"[dim]task:[/dim] {task_str}")
     console.print(f"[dim]repo:[/dim] {repo}")
-    console.print(f"[dim]agents:[/dim] {', '.join(agent_names)}")
-    if model:
-        console.print(f"[dim]model:[/dim] {model}")
+    if cfg.path:
+        console.print(f"[dim]config:[/dim] {cfg.path}")
+    console.print(f"[dim]agents:[/dim] {', '.join(spec.name for spec in specs)}")
+    chosen_model = model or cfg.model
+    if chosen_model:
+        console.print(f"[dim]model:[/dim] {chosen_model}")
 
     opts = RunOptions(
-        timeout_s=float(timeout),
-        test_command=test_command,
-        keep_worktrees=keep_worktrees,
+        timeout_s=float(timeout_s),
+        test_command=test_cmd,
+        keep_worktrees=keep,
     )
 
     try:
@@ -184,7 +215,7 @@ def run_cmd(
 
     if session.report_dir:
         write_session_json(session, session.report_dir / "session.json")
-        if want_html:
+        if html:
             html_path = session.report_dir / "report.html"
             write_html_report(session, html_path)
             console.print(f"\n[dim]report:[/dim] {html_path}")
@@ -199,3 +230,13 @@ def _parse_agent_names(agents_text: str) -> list[str]:
     if not names:
         raise click.UsageError("--agents resolved to an empty list")
     return names
+
+
+def _with_model(spec: AgentSpec, model: str) -> AgentSpec:
+    return AgentSpec(
+        name=spec.name,
+        cli=spec.cli,
+        model=model,
+        extra_args=list(spec.extra_args),
+        env=dict(spec.env),
+    )

@@ -93,6 +93,29 @@ report: /Users/you/code/my-project/.codejoust/runs/20260424-222310/report.html
 | `<agent>.patch` | 每个 agent 的变更，`git apply` 应用 |
 | `logs/<agent>/*.log` | 每个 CLI 的原始 stdout/stderr |
 
+## 项目配置
+
+在被测试的仓库里放一个 `codejoust.yaml`，常用比赛配置就能固定下来：
+
+```yaml
+agents:
+  - claude-code
+  - name: codex
+    model: gpt-5
+    extra_args: ["--reasoning-effort", "high"]
+test: pytest -q
+timeout: 900
+html: true
+```
+
+之后直接跑：
+
+```bash
+codejoust run "修掉 scheduler retry bug"
+```
+
+临时命令行参数仍然优先，方便一次性覆盖。
+
 ## 打分规则
 
 按这个优先级打：
@@ -139,6 +162,7 @@ codejoust run TASK [OPTIONS]
       --timeout INT      每个 agent 的超时（秒）。默认：600
       --test CMD         测试命令。默认：自动探测 pytest / npm test
       --model NAME       给每个 agent 统一传的 model 覆盖
+      --config FILE      项目配置文件。默认读取 codejoust.yaml/.codejoust.yaml
       --keep-worktrees   运行结束后保留 worktree，方便手动检查
       --html / --no-html 是否写 report.html。默认：开
       --open             跑完后自动在浏览器打开报告

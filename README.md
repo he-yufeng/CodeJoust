@@ -91,6 +91,29 @@ All artifacts live in `.codejoust/runs/<timestamp>/`:
 | `<agent>.patch` | the agent's changes, apply with `git apply` |
 | `logs/<agent>/*.log` | raw stdout/stderr from each CLI |
 
+## Project config
+
+Put `codejoust.yaml` in the repo you are testing so repeated runs are reproducible:
+
+```yaml
+agents:
+  - claude-code
+  - name: codex
+    model: gpt-5
+    extra_args: ["--reasoning-effort", "high"]
+test: pytest -q
+timeout: 900
+html: true
+```
+
+Then run:
+
+```bash
+codejoust run "fix the scheduler retry bug"
+```
+
+CLI flags still win when you want a one-off override.
+
 ## How it scores
 
 Four signals, in order:
@@ -137,6 +160,7 @@ codejoust run TASK [OPTIONS]
       --timeout INT      per-agent timeout in seconds. default: 600
       --test CMD         test command. default: auto-detect pytest / npm test
       --model NAME       optional model override passed to every agent
+      --config FILE      project config. default: codejoust.yaml/.codejoust.yaml if present
       --keep-worktrees   don't clean up worktrees afterwards
       --html / --no-html write report.html. default: on
       --open             open the report in your browser when done
