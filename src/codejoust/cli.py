@@ -14,7 +14,12 @@ from codejoust.adapters import REGISTRY
 from codejoust.config import load_project_config
 from codejoust.core import AgentSpec
 from codejoust.doctor import check_agents, known_agent_names
-from codejoust.report import render_terminal, write_html_report, write_session_json
+from codejoust.report import (
+    render_terminal,
+    write_html_report,
+    write_markdown_report,
+    write_session_json,
+)
 from codejoust.runner import RunOptions, run_arena
 
 console = Console()
@@ -215,6 +220,9 @@ def run_cmd(
 
     if session.report_dir:
         write_session_json(session, session.report_dir / "session.json")
+        md_path = session.report_dir / "report.md"
+        write_markdown_report(session, md_path)
+        console.print(f"[dim]markdown:[/dim] {md_path}")
         if html:
             html_path = session.report_dir / "report.html"
             write_html_report(session, html_path)

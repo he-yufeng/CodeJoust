@@ -210,8 +210,8 @@ Start with `--timeout 120` for small tasks. Each agent is independently rate-lim
 
 - **v0.1.0**: Claude Code + aider, objective scoring, HTML report.
 - **v0.1.1**: OpenAI Codex CLI adapter — three-way races out of the box.
-- **v0.2.0** (now): Google Gemini CLI adapter; four agents on the same task.
-- **v0.3**: `--judge` for LLM-as-judge tie-breaking, YAML config for reusable agent profiles, Cursor + OpenHands adapters, batch mode, Markdown PR export.
+- **v0.2.0** (now): Google Gemini CLI adapter; four agents on the same task; Markdown PR export (`report.md` written next to each run).
+- **v0.3**: `--judge` for LLM-as-judge tie-breaking, YAML config for reusable agent profiles, Cursor + OpenHands adapters, batch mode.
 - **later**: server mode for team/CI use, public arena leaderboard.
 
 Kill criteria: if `claude-squad` or `parallel-code` ship built-in auto-scoring, CodeJoust repositions as the lightweight standalone scorer and deprecates its orchestration layer.

@@ -206,3 +206,34 @@ _HTML_SHELL = """<!doctype html>
 </body>
 </html>
 """
+
+
+def render_markdown(session: ArenaSession) -> str:
+    """Render the arena results as a Markdown summary, ready to paste into a PR."""
+    ranked = sorted(session.runs, key=_run_score, reverse=True)
+    winner = session.winner()
+
+    lines = [
+        "## CodeJoust Arena",
+        "",
+        f"**Task:** {session.task}",
+        f"**Base:** `{session.base_commit[:10]}` ({session.base_branch})",
+        "",
+        "| # | Agent | Status | Diff | Tests | Cost |",
+        "| --: | --- | --- | --- | --- | --- |",
+    ]
+    for i, run in enumerate(ranked, 1):
+        mark = " 🏆" if winner and run.agent == winner.agent else ""
+        diff = f"+{run.lines_added} / -{run.lines_removed} ({run.files_changed}f)"
+        tests = f"{run.tests_passed or 0}/{run.tests_total}" if run.tests_total else "—"
+        cost = f"${run.cost_usd:.4f}" if run.cost_usd else "—"
+        lines.append(f"| {i} | {run.agent}{mark} | {run.status} | {diff} | {tests} | {cost} |")
+
+    lines.append("")
+    lines.append(f"**Winner:** {winner.agent}" if winner else "_No successful run._")
+    return "\n".join(lines) + "\n"
+
+
+def write_markdown_report(session: ArenaSession, out_path: Path) -> None:
+    """Write the Markdown arena summary to a file."""
+    out_path.write_text(render_markdown(session), encoding="utf-8")
