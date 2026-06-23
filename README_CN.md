@@ -1,12 +1,16 @@
-# CodeJoust
+<div align="center">
+
+<img src="docs/banner.png" alt="CodeJoust — 让 AI 编程助手比赛解同一个 bug" width="100%">
 
 [![PyPI](https://img.shields.io/pypi/v/codejoust.svg)](https://pypi.org/project/codejoust/)
 [![Python](https://img.shields.io/pypi/pyversions/codejoust.svg)](https://pypi.org/project/codejoust/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-**让 AI 编程助手比赛解同一个 bug。按测试通过率、diff 大小、成本、耗时自动打分，合并胜者的 patch。**
+[**快速开始**](#quickstart) · [**评分机制**](#how-it-scores) · [English](README.md)
 
-English → [README.md](README.md)
+</div>
+
+<p align="center"><img src="docs/demo.png" alt="codejoust run" width="620"></p>
 
 ---
 
