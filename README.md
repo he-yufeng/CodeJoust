@@ -220,6 +220,13 @@ Kill criteria: if `claude-squad` or `parallel-code` ship built-in auto-scoring, 
 
 Adapters are the main contribution surface. See [`src/codejoust/adapters.py`](src/codejoust/adapters.py) — each adapter is a subclass of `AgentAdapter` with `build_command()` and `parse_usage()`. Open a PR with your agent of choice.
 
+## Related projects
+
+- [CoreCoder](https://github.com/he-yufeng/CoreCoder) — a minimal AI coding agent you can read end to end
+- [AnyCoder](https://github.com/he-yufeng/AnyCoder) — a terminal AI coding agent that works with any LLM
+- [AgentProbe](https://github.com/he-yufeng/AgentProbe) — a pytest plugin for regression-testing AI agents
+- [LiteBench](https://github.com/he-yufeng/LiteBench) — a pip-installable benchmark runner for LLMs and agents
+
 ## License
 
 MIT. See [LICENSE](LICENSE).
