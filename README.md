@@ -1,12 +1,16 @@
-# CodeJoust
+<div align="center">
+
+<img src="docs/banner.png" alt="CodeJoust — pit AI coding agents against the same bug" width="100%">
 
 [![PyPI](https://img.shields.io/pypi/v/codejoust.svg)](https://pypi.org/project/codejoust/)
 [![Python](https://img.shields.io/pypi/pyversions/codejoust.svg)](https://pypi.org/project/codejoust/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-**Pit AI coding agents against the same bug. Score them on tests, diff size, cost, and time. Merge the winner.**
+[**Quickstart**](#quickstart) · [**How It Scores**](#how-it-scores) · [**Agents**](#agents) · [中文](README_CN.md)
 
-中文 → [README_CN.md](README_CN.md)
+</div>
+
+<p align="center"><img src="docs/demo.png" alt="codejoust run" width="620"></p>
 
 ---
 
