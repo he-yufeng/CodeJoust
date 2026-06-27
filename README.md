@@ -224,12 +224,14 @@ Kill criteria: if `claude-squad` or `parallel-code` ship built-in auto-scoring, 
 
 Adapters are the main contribution surface. See [`src/codejoust/adapters.py`](src/codejoust/adapters.py) — each adapter is a subclass of `AgentAdapter` with `build_command()` and `parse_usage()`. Open a PR with your agent of choice.
 
-## Related projects
+## Related Projects
 
-- [CoreCoder](https://github.com/he-yufeng/CoreCoder) — a minimal AI coding agent you can read end to end
-- [AnyCoder](https://github.com/he-yufeng/AnyCoder) — a terminal AI coding agent that works with any LLM
-- [AgentProbe](https://github.com/he-yufeng/AgentProbe) — a pytest plugin for regression-testing AI agents
-- [LiteBench](https://github.com/he-yufeng/LiteBench) — a pip-installable benchmark runner for LLMs and agents
+CodeJoust is one of my agent-evaluation projects. A few siblings, if you're comparing tools:
+
+- **[CoreCoder](https://github.com/he-yufeng/CoreCoder)** — want to understand how a coding agent really works? Read the whole ~1k-line engine end to end, not a black box.
+- **[RepoWiki](https://github.com/he-yufeng/RepoWiki)** — dropped into an unfamiliar codebase? It gives you a guided wiki and a where-to-start reading path, a self-hostable DeepWiki alternative.
+- **[agentcikit](https://github.com/he-yufeng/agentcikit)** — the CI safety layer for LLM agents: replay runs, fence tool calls, and triage failures before they ship.
+- **[LiteBench](https://github.com/he-yufeng/LiteBench)** — benchmark any LLM in one command: HumanEval, GSM8K and MMLU built in, plus your own tasks.
 
 ## License
 
