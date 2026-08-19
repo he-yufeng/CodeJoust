@@ -61,6 +61,19 @@ print('{"timestamp":"2026-04-25T10:00:00Z","type":"event_msg","payload":{"type":
 
     _write_shim(
         bin_dir,
+        "kimi",
+        r"""
+from pathlib import Path
+
+Path("app.py").open("a", encoding="utf-8").write("fake kimi line\n")
+print('{"role":"meta","type":"system.version","version":"0.36.1"}')
+print('{"role":"assistant","content":"done"}')
+print('{"role":"meta","type":"session.resume_hint","session_id":"s-1"}')
+""",
+    )
+
+    _write_shim(
+        bin_dir,
         "gemini",
         """
 from pathlib import Path

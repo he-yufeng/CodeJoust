@@ -57,6 +57,9 @@ npm install -g @openai/codex
 
 # Google Gemini CLI
 brew install gemini-cli   # 或 npm install -g @google/gemini-cli
+
+# Kimi Code
+# 安装方式见 https://github.com/MoonshotAI/kimi-code
 ```
 
 按每个 CLI 自己的要求配好 API Key（`ANTHROPIC_API_KEY`、`OPENAI_API_KEY` 等）——CodeJoust 只是调起子进程，你原本怎么用它们就怎么用。

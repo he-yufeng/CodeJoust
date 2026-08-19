@@ -7,7 +7,7 @@ from codejoust.doctor import check_agents, known_agent_names
 
 
 def test_known_agent_names_are_canonical() -> None:
-    assert known_agent_names() == ["claude-code", "aider", "codex", "gemini"]
+    assert known_agent_names() == ["claude-code", "aider", "codex", "gemini", "kimi-code"]
 
 
 def test_doctor_finds_fake_agent_clis(fake_bin) -> None:

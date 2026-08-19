@@ -255,6 +255,32 @@ class GeminiAdapter(AgentAdapter):
         # tests / diff drive scoring (same handling as codex).
 
 
+class KimiCodeAdapter(AgentAdapter):
+    name = "kimi-code"
+    default_cli = "kimi"
+
+    def build_command(self, task: str, cwd: Path) -> list[str]:
+        cmd = [
+            self.executable(),
+            "-p",
+            task,
+            "--output-format",
+            "stream-json",
+        ]
+        # kimi's print mode needs no permission flag: it already runs tool
+        # calls without prompting in non-interactive runs. (--yolo and --auto
+        # are rejected in combination with -p.)
+        if self.spec.model:
+            cmd += ["-m", self.spec.model]
+        cmd += list(self.spec.extra_args)
+        return cmd
+
+    def parse_usage(self, run: AgentRun) -> None:
+        # kimi's stream-json emits assistant/tool/meta events but no usage
+        # block, so tokens stay 0 and scoring falls back to tests and diff.
+        return
+
+
 class AiderAdapter(AgentAdapter):
     name = "aider"
     default_cli = "aider"
@@ -329,6 +355,8 @@ REGISTRY: dict[str, type[AgentAdapter]] = {
     "aider": AiderAdapter,
     "codex": CodexAdapter,
     "gemini": GeminiAdapter,
+    "kimi-code": KimiCodeAdapter,
+    "kimi": KimiCodeAdapter,
 }
 
 

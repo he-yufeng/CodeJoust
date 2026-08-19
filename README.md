@@ -16,7 +16,7 @@
 
 Same model, different harness. Independent testing found Claude Sonnet scored **77% through Claude Code** but **93% through Cursor** on the same benchmark — a 15-point gap that is pure tooling, not model quality. Which "AI coding assistant" is right for your task is not a model question, it's a **task-level empirical question**.
 
-CodeJoust answers it. One CLI command fires the same task at Claude Code, aider, (soon) Codex, Cursor CLI, Gemini CLI in parallel — each in its own `git worktree` — then auto-grades them and hands you the winning patch.
+CodeJoust answers it. One CLI command fires the same task at Claude Code, aider, Codex, Gemini CLI, Kimi Code in parallel — each in its own `git worktree` — then auto-grades them and hands you the winning patch.
 
 ## Why not just open three terminals?
 
@@ -55,6 +55,9 @@ npm install -g @openai/codex
 
 # Google Gemini CLI
 brew install gemini-cli  # or: npm install -g @google/gemini-cli
+
+# Kimi Code
+# see https://github.com/MoonshotAI/kimi-code for install options
 ```
 
 Set the usual API keys in your environment (`ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, etc.) — CodeJoust just shells out to each CLI, so whatever auth setup you already use keeps working.

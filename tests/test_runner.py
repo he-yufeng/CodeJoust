@@ -38,6 +38,25 @@ def test_arena_runs_both_agents(tmp_repo: Path, fake_bin: Path, tmp_path: Path) 
     assert abs(aider.cost_usd - 0.0021) < 1e-6
 
 
+def test_kimi_adapter_runs_and_leaves_tokens_zero(tmp_repo: Path, fake_bin: Path, tmp_path: Path) -> None:
+    # kimi's stream-json carries no usage block, so tokens stay 0 and the
+    # arena scores it on tests and diff only.
+    session = asyncio.run(
+        run_arena(
+            task="comment",
+            repo_root=tmp_repo,
+            specs=[AgentSpec(name="kimi", cli="")],
+            opts=RunOptions(timeout_s=30, keep_worktrees=False),
+            log_dir=tmp_path / "logs",
+        )
+    )
+
+    run = session.runs[0]
+    assert run.status == "success", run.error
+    assert run.lines_added >= 1
+    assert run.input_tokens == 0 and run.output_tokens == 0
+
+
 def test_codex_adapter_parses_token_count(tmp_repo: Path, fake_bin: Path, tmp_path: Path) -> None:
     session = asyncio.run(
         run_arena(
