@@ -98,6 +98,8 @@ All artifacts live in `.codejoust/runs/<timestamp>/`:
 | `<agent>.patch` | the agent's changes, apply with `git apply` |
 | `logs/<agent>/*.log` | raw stdout/stderr from each CLI |
 
+Want the results in a shape other eval tools can read? Add `--evalport resultset.json` and CodeJoust also writes an [EvalPort](https://github.com/adhabnr-ux/evalport) result set: one `Result` per agent, the test pass ratio as a `GraderResult`, cost/tokens/diff stats in `metadata`. Off by default; `session.json` is unchanged.
+
 ## Project config
 
 Put `codejoust.yaml` in the repo you are testing so repeated runs are reproducible:
@@ -171,6 +173,7 @@ codejoust run TASK [OPTIONS]
       --keep-worktrees   don't clean up worktrees afterwards
       --html / --no-html write report.html. default: on
       --open             open the report in your browser when done
+      --evalport PATH    also write an EvalPort result set JSON. default: off
 
 codejoust doctor [OPTIONS]
 

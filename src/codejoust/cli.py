@@ -14,6 +14,7 @@ from codejoust.adapters import REGISTRY
 from codejoust.config import load_project_config
 from codejoust.core import AgentSpec
 from codejoust.doctor import check_agents, known_agent_names
+from codejoust.evalport import write_evalport_json
 from codejoust.report import (
     render_terminal,
     write_html_report,
@@ -142,6 +143,13 @@ def doctor_cmd(agents_text: str | None, json_output: bool, strict: bool) -> None
     is_flag=True,
     help="Open the HTML report in your browser when the run ends.",
 )
+@click.option(
+    "--evalport",
+    "evalport_path",
+    type=click.Path(dir_okay=False, path_type=Path),
+    default=None,
+    help="Also export the results as an EvalPort result set JSON at PATH.",
+)
 def run_cmd(
     task: tuple[str, ...],
     agents: str,
@@ -153,6 +161,7 @@ def run_cmd(
     keep_worktrees: bool,
     want_html: bool | None,
     open_in_browser: bool,
+    evalport_path: Path | None,
 ) -> None:
     """Run TASK through every selected agent in isolated git worktrees, then rank them."""
     task_str = " ".join(task).strip()
@@ -231,6 +240,10 @@ def run_cmd(
                 import webbrowser
 
                 webbrowser.open(html_path.as_uri())
+
+    if evalport_path is not None:
+        write_evalport_json(session, evalport_path)
+        console.print(f"[dim]evalport:[/dim] {evalport_path}")
 
 
 def _parse_agent_names(agents_text: str) -> list[str]:

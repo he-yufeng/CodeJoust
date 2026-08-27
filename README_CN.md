@@ -100,6 +100,8 @@ report: /Users/you/code/my-project/.codejoust/runs/20260424-222310/report.html
 | `<agent>.patch` | 每个 agent 的变更，`git apply` 应用 |
 | `logs/<agent>/*.log` | 每个 CLI 的原始 stdout/stderr |
 
+想把比赛结果喂给其它 eval 工具？加上 `--evalport resultset.json`，CodeJoust 会额外写一份 [EvalPort](https://github.com/adhabnr-ux/evalport) 兼容的 result set：每个 agent 一条 `Result`，测试通过率记为一条 `GraderResult`，cost、token、diff 统计放进 `metadata`。默认不导出，`session.json` 完全不变。
+
 ## 项目配置
 
 在被测试的仓库里放一个 `codejoust.yaml`，常用比赛配置就能固定下来：
@@ -173,6 +175,7 @@ codejoust run TASK [OPTIONS]
       --keep-worktrees   运行结束后保留 worktree，方便手动检查
       --html / --no-html 是否写 report.html。默认：开
       --open             跑完后自动在浏览器打开报告
+      --evalport PATH    额外导出一份 EvalPort result set JSON。默认：关
 
 codejoust doctor [OPTIONS]
 
